@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "train.h"
+#include <err.h>
 
 int main() {
     ImageData dataset[MAX_IMAGES];
@@ -8,7 +9,7 @@ int main() {
 
     // Charger les images du répertoire "Train"
     if (!load_images_from_directory("/home/clement/Documents/test2/archive/Train", dataset, &dataset_size)) {
-        printf("Erreur lors du chargement des images.\n");
+        err(1,"Erreur lors du chargement des images.\n");
         return 1;
     }
 
