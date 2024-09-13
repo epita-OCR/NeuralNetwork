@@ -9,7 +9,9 @@
 #include <sys/stat.h>    // Pour DT_DIR et DT_REG
                          //
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include <err.h>
+
+#include <stb_image.h>
 
 
 #define INPUT_SIZE 32*32
@@ -41,27 +43,27 @@ int load_image(const char* filepath, float* output_pixels, int target_width, int
     unsigned char* img = stbi_load(filepath, &width, &height, &channels, 1);  // Charger en niveaux de gris
 
     if (!img) {
-        printf("Erreur: impossible de charger l'image %s\n", filepath);
-        return 0;
+        err(0, "Erreur: impossible de charger l'image %s\n", filepath);
+        return 0;  // Retourner immédiatement après l'échec du chargement
     }
 
     if (width != target_width || height != target_height) {
-        printf("Erreur: l'image %s a une taille incorrecte\n", filepath);
-        stbi_image_free(img);
-        return 0;
+        stbi_image_free(img);  // Libérer la mémoire car l'image n'a pas la bonne taille
+        err(0, "Erreur: l'image %s a une taille incorrecte\n", filepath);
+        return 0;  // Retourner immédiatement après l'erreur de taille
     }
 
     // Normaliser les pixels entre -1 et 1
     for (int i = 0; i < INPUT_SIZE; i++) {
         output_pixels[i] = (img[i] - 127.5f) / 127.5f;
     }
-
-    stbi_image_free(img);
+    free(img);  // Libérer la mémoire après utilisation
+    //stbi_image_free(img);  // Libérer la mémoire après utilisation
     return 1;
 }
 
 // Fonction pour charger les images depuis un répertoire et créer des étiquettes
-int load_images_from_directory(const char* directory, ImageData* dataset, int* dataset_size) {
+int load_images_from_directory(const char* directory, struct ImageData* dataset, int* dataset_size) {
     DIR* dir = opendir(directory);
     if (!dir) {
         printf("Erreur: impossible d'ouvrir le dossier %s\n", directory);
@@ -96,7 +98,7 @@ int load_images_from_directory(const char* directory, ImageData* dataset, int* d
 
                 if (is_regular_file(filepath)) {  // Fichier régulier
                     // Charger l'image et la normaliser
-                    if (load_image(filepath, dataset[*dataset_size].pixels, 32, 32)) {
+                    if (load_image(filepath, dataset[*dataset_size].pixels, 32, 32) == 1) {
                         dataset[*dataset_size].label = label;
                         (*dataset_size)++;
                     }
@@ -112,7 +114,7 @@ int load_images_from_directory(const char* directory, ImageData* dataset, int* d
 }
 
 // Fonction pour créer un encodage one-hot des labels
-void create_one_hot_labels(float** labels_matrix, ImageData* dataset, int num_samples) {
+void create_one_hot_labels(float** labels_matrix, struct ImageData* dataset, int num_samples) {
     for (int i = 0; i < num_samples; i++) {
         int label = dataset[i].label;
         for (int j = 0; j < NUM_CLASSES; j++) {
@@ -121,7 +123,7 @@ void create_one_hot_labels(float** labels_matrix, ImageData* dataset, int num_sa
     }
 }
 
-void select_random_images(ImageData* dataset, int dataset_size, ImageData* selected_images, int num_images) {
+void select_random_images(struct ImageData* dataset, int dataset_size, struct ImageData* selected_images, int num_images) {
     srand(time(NULL));  // Initialiser le générateur de nombres aléatoires
     for (int i = 0; i < num_images; i++) {
         int random_index = rand() % dataset_size;

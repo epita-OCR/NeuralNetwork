@@ -6,14 +6,14 @@
 // Définition des constantes
 #define INPUT_SIZE 32*32  // Taille des images (32x32 pixels#define NUM_CLASSES 26    // 26 classes pour A-Z
 #define BATCH_SIZE 64     // Taille du batch
-#define MAX_IMAGES 60000  // Taille maximale du dataset
+#define MAX_IMAGES 100  // Taille maximale du dataset
 #define NUM_CLASSES 36
 
 // Structure pour stocker une image et son label
-typedef struct {
+struct ImageData{
     float pixels[INPUT_SIZE];  // Image normalisée (pixels)
     int label;                 // Label de l'image (0-25 correspondant à A-Z)
-} ImageData;
+} ;
 
 // Prototypes des fonctions
 
@@ -36,7 +36,7 @@ int load_image(const char* filepath, float* output_pixels, int target_width, int
  * @param dataset_size Pointeur vers un entier pour stocker la taille du dataset
  * @return 1 si le chargement réussit, 0 sinon
  */
-int load_images_from_directory(const char* directory, ImageData* dataset, int* dataset_size);
+int load_images_from_directory(const char* directory, struct ImageData* dataset, int* dataset_size);
 
 /**
  * Sélectionne un ensemble d'images aléatoires dans le dataset.
@@ -46,9 +46,9 @@ int load_images_from_directory(const char* directory, ImageData* dataset, int* d
  * @param selected_images Tableau pour stocker les images sélectionnées
  * @param num_images Nombre d'images à sélectionner
  */
-void select_random_images(ImageData* dataset, int dataset_size, ImageData* selected_images, int num_images);
+void select_random_images(struct ImageData* dataset, int dataset_size, struct ImageData* selected_images, int num_images);
 
-void create_one_hot_labels(float** labels_matrix, ImageData* dataset, int num_samples);
+void create_one_hot_labels(float** labels_matrix, struct ImageData* dataset, int num_samples);
 
 /**
  * Fonction pour calculer les probabilités softmax pour chaque perceptron.

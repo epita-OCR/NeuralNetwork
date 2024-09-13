@@ -4,7 +4,16 @@
 #include <err.h>
 
 int main() {
-    ImageData dataset[MAX_IMAGES];
+
+    printf("Hey\n");
+    printf("Allocating %lu bytes for dataset\n", MAX_IMAGES * sizeof(struct ImageData));
+
+    //struct ImageData dataset[MAX_IMAGES]; //seg fault
+    struct ImageData *dataset = (struct ImageData *)malloc(MAX_IMAGES * sizeof(struct ImageData));
+    if (dataset == NULL) {
+        err(1, "Memory allocation failed\n");
+        return 1;
+    }
     int dataset_size = 0;
 
     // Charger les images du répertoire "Train"
@@ -16,7 +25,7 @@ int main() {
     printf("Nombre total d'images chargées : %d\n", dataset_size);
 
     // Sélectionner 60 000 images aléatoires pour l'entraînement
-    ImageData selected_images[60000];
+    struct ImageData selected_images[60000];
     select_random_images(dataset, dataset_size, selected_images, 60000);
 
     // Préparer les tableaux d'entrée et les labels pour l'entraînement
@@ -40,6 +49,7 @@ int main() {
     }
     free(x_train);
     free(y_train);
+    free(dataset);
 
     return 0;
 }

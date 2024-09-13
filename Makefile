@@ -1,10 +1,34 @@
 CC := gcc
-CFLAGS := -Wall -Wextra -lm
-TARGET = neural
-OBJS = src/perceptron.o src/train.o src/main.o 
+CFLAGS := -Wall -Wextra -g -lm
+SOURCES = $(wildcard src/*.c)
+OBJS = $(SOURCES:.c=.o)
 
-$(TARGET): $(OBJS)
+TEST_SOURCES = $(wildcard tests/*.c)
+TEST_OBJS = $(TEST_SOURCES:.c=.o)
+
+all: neural
+
+#Build
+neural : $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $(OBJS) -lm -g #--main-stacksize=10000000 #8388608
+
+%.o : %.c
+	$(CC) $(CFLAGS) -c -o $@ $< -g
+
+
+run_tests: $(OBJS) $(TEST_OBJS)
+	$(CC) $(CFLAGS) -o $@ src/perceptron.o src/train.c $(TEST_OBJS) -lcriterion -lm
+
+
+debug: CFLAGS += $(DEBUG_FLAGS)
+debug: all
+
+
 
 .PHONY: clean
 clean:
 	$(RM) $(OBJS) $(TARGET)
+
+.PHONY: test
+test: run_tests
+	./run_tests
