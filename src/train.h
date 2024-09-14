@@ -26,7 +26,7 @@ struct ImageData{
  * @param target_height Hauteur cible de l'image (doit être 32)
  * @return 1 si l'image est chargée avec succès, 0 sinon
  */
-int load_png_image(const char* filepath, float* output_pixels, int target_width, int target_height);
+float* load_png_image(const char* file_path, int* width, int* height, int* channels)
 
 /**
  * Charge toutes les images d'un répertoire et les associe à leurs labels respectifs.
