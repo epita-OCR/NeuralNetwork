@@ -11,7 +11,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <err.h>
 
-#include <stb_image.h>
+#include "stb_image.h"
 
 
 #define INPUT_SIZE 32*32

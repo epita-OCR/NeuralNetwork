@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "train.h"
 #include <err.h>
-#include <stb_image.h>
+#include "stb_image.h"
 
 #define IMAGE_WIDTH 32
 #define IMAGE_HEIGHT 32
