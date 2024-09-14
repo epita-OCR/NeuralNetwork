@@ -11,7 +11,7 @@
 
 // Structure pour stocker une image et son label
 struct ImageData{
-    float pixels[INPUT_SIZE];  // Image normalisée (pixels)
+    float* pixels;  // Image normalisée (pixels)
     int label;                 // Label de l'image (0-25 correspondant à A-Z)
 } ;
 
@@ -36,7 +36,7 @@ int load_image(const char* filepath, float* output_pixels, int target_width, int
  * @param dataset_size Pointeur vers un entier pour stocker la taille du dataset
  * @return 1 si le chargement réussit, 0 sinon
  */
-int load_images_from_directory(const char* directory, struct ImageData* dataset, int* dataset_size);
+int load_images_from_directory(const char* directory, struct ImageData* dataset);
 
 /**
  * Sélectionne un ensemble d'images aléatoires dans le dataset.
@@ -49,6 +49,12 @@ int load_images_from_directory(const char* directory, struct ImageData* dataset,
 void select_random_images(struct ImageData* dataset, int dataset_size, struct ImageData* selected_images, int num_images);
 
 void create_one_hot_labels(float** labels_matrix, struct ImageData* dataset, int num_samples);
+
+/**
+ *Fonction pour initialiser tout les perceptrons
+ *
+ */
+void init_perceptrons();
 
 /**
  * Fonction pour calculer les probabilités softmax pour chaque perceptron.

@@ -1,12 +1,27 @@
 #include "perceptron.h"
 #include <math.h>  // Pour pow, exp, et log
+#include <stdio.h>
 #include <stdlib.h>
+
+
+// Fonction pour initialiser un perceptron avec des coefficients aléatoires
+void init_perceptron(struct Perceptron* perceptron, unsigned int inputs_nb) {
+    perceptron->inputs_nb = inputs_nb;
+    perceptron->coeffs = (float*) malloc(inputs_nb * sizeof(float));
+    for (unsigned int i = 0; i < inputs_nb; i++) {
+        perceptron->coeffs[i] = (float) rand() / RAND_MAX;  // Coefficients aléatoires entre 0 et 1
+    }
+}
+
 
 // Fonction pour calculer la combinaison linéaire
 float LinarCombi(struct Perceptron perceptron, float* x) {
     float arg = perceptron.coeffs[perceptron.inputs_nb - 1];  // Dernier coefficient (biais)
     for (unsigned int i = 0; i < perceptron.inputs_nb - 1; i++) {
         arg += perceptron.coeffs[i] * x[i];  // Combinaison linéaire des coefficients et des entrées
+        if (x[i] != 0) {
+            //printf("x[%d] = %f\narg = %f", i, x[i], arg);
+        }
     }
     return arg;
 }

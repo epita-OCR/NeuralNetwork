@@ -10,7 +10,7 @@ all: neural
 
 #Build
 neural : $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $(OBJS) -lm -g #--main-stacksize=10000000 #8388608
+	$(CC) $(CFLAGS) -o $@ $(OBJS) -lm -g
 
 %.o : %.c
 	$(CC) $(CFLAGS) -c -o $@ $< -g
@@ -27,7 +27,7 @@ debug: all
 
 .PHONY: clean
 clean:
-	$(RM) $(OBJS) $(TARGET)
+	$(RM) $(OBJS) $(TARGET) $(TEST_OBJS) neural run_tests
 
 .PHONY: test
 test: run_tests
