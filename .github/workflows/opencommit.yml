@@ -47,12 +47,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: configure
-      run: ./configure
+    #- name: configure
+    #  run: ./configure
     - name: make
       run: make
   format:
     runs-on: ubuntu-latest
+    needs: Build
     steps:
       - uses: actions/checkout@v4
         with:
@@ -74,13 +75,13 @@ jobs:
           commit_message: "chore(style): clang format files"
           branch: ${{ github.head_ref }}
   Test:
-    needs: OpenCommit
+    needs: format
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
-    - name: configure
-      run: ./configure
+    #- name: configure
+    #  run: ./configure
     - name: make test
       run: make test
     
