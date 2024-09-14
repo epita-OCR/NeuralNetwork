@@ -5,6 +5,8 @@ on:
     # this list of branches is often enough,
     # but you may still ignore other public branches
     branches-ignore: [release]
+  pull_request:
+    
     
 jobs:
   OpenCommit:
