@@ -10,6 +10,14 @@ struct Perceptron {
 };
 
 /**
+ * Crée un perceptron avec des coefficients aléatoires.
+ *
+ * @param perceptron Le perceptron à initialiser
+ * @param inputs_nb Nombre d'entrées (y compris le biais)
+ */
+void init_perceptron(struct Perceptron* perceptron, unsigned int inputs_nb);
+
+/**
  * Calcule la combinaison linéaire des entrées avec les coefficients du perceptron.
  *
  * @param perceptron La structure du perceptron
