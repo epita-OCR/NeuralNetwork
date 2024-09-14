@@ -1,7 +1,6 @@
 #include <criterion/criterion.h>
 #include <criterion/logging.h>
 #include "../src/train.h"  // Assurez-vous que ce fichier contient la déclaration de load_image
-#include "../src/"
 #include "image_tests.h"
 #define TARGET_WIDTH 32
 #define TARGET_HEIGHT 32
