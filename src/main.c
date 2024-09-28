@@ -3,13 +3,16 @@
 #include <stdlib.h>
 #include "train.h"
 #include <err.h>
+#include <string.h>
+
 #include "stb_image.h"
 
-#define IMAGE_WIDTH 32
-#define IMAGE_HEIGHT 32
 #define CHANNELS 1  // 1 pour les images en niveaux de gris, 3 pour RGB
 #define MAX_IMAGES 60000
-#define NUM_CLASSES 36
+#define NUM_CLASSES 39
+#define INPUT_SIZE 28*28
+#define BATCH_SIZE 64
+
 
 // Fonction pour charger une image PNG
 float* load_png_image(const char* file_path, int* width, int* height, int* channels) {
@@ -22,7 +25,7 @@ float* load_png_image(const char* file_path, int* width, int* height, int* chann
     }
 
     // Convertir l'image en un tableau de flottants
-    float* pixels = (float*) malloc((*width) * (*height) * sizeof(float));
+    float* pixels = (float*) calloc((*width) * (*height), sizeof(float));
     for (int i = 0; i < (*width) * (*height); i++) {
         pixels[i] = data[i] / 255.0f;  // Normalisation des pixels entre 0 et 1
     }
@@ -34,8 +37,7 @@ float* load_png_image(const char* file_path, int* width, int* height, int* chann
 int load_images_from_directory(const char* directory_path, struct ImageData* dataset) {
     DIR* dir = opendir(directory_path);
     if (dir == NULL) {
-        printf("Erreur lors de l'ouverture du répertoire %s\n", directory_path);
-        return 0;
+        err(EXIT_FAILURE,"Erreur lors de l'ouverture du répertoire %s\n", directory_path);
     }
 
     struct dirent* entry;
@@ -53,22 +55,30 @@ int load_images_from_directory(const char* directory_path, struct ImageData* dat
 
             if (pixels != NULL && count < MAX_IMAGES) {
                 dataset[count].pixels = pixels;
+                dataset[count].width = width;
+                dataset[count].height = height;
                 dataset[count].label = 0; // Définir ici la bonne étiquette en fonction du nom de fichier ou du répertoire
                 count++;
             }
+            // Libérer la mémoire des pixels
+            else {
+                free(pixels);
+            }
         }
     }
-
     closedir(dir);
     //dataset_size = count;
+
     return count;
 }
+
+
 
 int main() {
     printf("Hey\n");
     printf("Allocating %lu bytes for dataset\n", MAX_IMAGES * sizeof(struct ImageData));
 
-    struct ImageData *dataset = (struct ImageData *)malloc(MAX_IMAGES * sizeof(struct ImageData));
+    struct ImageData *dataset = (struct ImageData *)calloc(MAX_IMAGES, sizeof(struct ImageData));
     if (dataset == NULL) {
         err(1, "Memory allocation failed\n");
         return 1;
@@ -77,43 +87,75 @@ int main() {
     init_perceptrons();
 
     // Charger les images du répertoire "Train". Les images sont dans des sous-dossiers. Il faur donc parcourir les sous-dossiers pour charger les images.
-    char* directory_path = "/home/clement/Documents/test2/archive/Train/A";
+    char* directory_path = "/home/clement/Documents/archive/Train/";
+    // Parcourir les sous-dossiers pour charger les images
+    char* subdirectories[] = {"&", "@", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "$", "A", "B", "C", "D", "E",
+        "F", "G", "H", "I", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "#"};
 
-    printf("Loading images from directory %s\n", directory_path);
-    int dataset_size = load_images_from_directory(directory_path, dataset);
+    int dataset_size = 0;
+    for (int i = 0; i < NUM_CLASSES; i++) {
+        char* dir[39] = { 0 };
+        strcat(dir, directory_path);
+        strcat(dir, subdirectories[i]);
+
+        printf("Loading images from directory %s\n", dir);
+        dataset_size = load_images_from_directory(dir, dataset);
 
 
-    printf("Nombre total d'images chargées : %d\n", dataset_size);
+        printf("Nombre total d'images chargées : %d\n", dataset_size);
 
-    printf("Selecting random images for training\n");
-    struct ImageData selected_images[MAX_IMAGES];
-    select_random_images(dataset, dataset_size, selected_images, 60000);
+        printf("Selecting random images for training\n");
+        struct ImageData selected_images[MAX_IMAGES];
+        select_random_images(dataset, dataset_size, selected_images, 60000);
 
-    printf("Preparing input arrays and labels for training\n");
-    // Préparer les tableaux d'entrée et les labels pour l'entraînement
-    float** x_train = (float**) malloc(MAX_IMAGES * sizeof(float*));
-    float** y_train = (float**) malloc(MAX_IMAGES * sizeof(float*));
 
-    printf("Loading and normalizing images for training\n");
-    // Charger et normaliser les images pour l'entraînement
-    for (int i = 0; i < 60000; i++) {
-        x_train[i] = selected_images[i].pixels;  // Charger les pixels normalisés
-        y_train[i] = (float*) calloc(NUM_CLASSES, sizeof(float));  // Allouer les labels en one-hot encoding
+
+        printf("Preparing input arrays and labels for training\n");
+        // Préparer les tableaux d'entrée et les labels pour l'entraînement
+        float** x_train = calloc(MAX_IMAGES, sizeof(float*));
+        float** y_train = calloc(MAX_IMAGES, sizeof(float*));
+
+        printf("Loading and normalizing images for training\n");
+        // Charger et normaliser les images pour l'entraînement
+        for (int i = 0; i < 60000; i++) {
+            if (INPUT_SIZE != selected_images[i].width * selected_images[i].height) {
+                err(EXIT_FAILURE, "Image as not the correct size || INPUT_SIZE = %i != size =  %i \n",
+                    INPUT_SIZE, selected_images[i].width * selected_images[i].height);
+            }
+            x_train[i] = selected_images[i].pixels;  // Charger les pixels normalisés
+            y_train[i] = calloc(NUM_CLASSES, sizeof(float));  // Allouer les labels en one-hot encoding
+            if (y_train[i] == NULL) {
+                err(EXIT_FAILURE, "Memory allocation failed for y_train\n");
+            }
+        }
+
+        // Créer les étiquettes en one-hot encoding
+        create_one_hot_labels(y_train, selected_images, MAX_IMAGES);
+        printf("Training the model\n");
+        train(x_train, y_train, MAX_IMAGES);
+        // Libérer la mémoire allouée
+        for (int i = 0; i < 60000; i++) {
+            free(y_train[i]);
+        }
+        free(x_train);
+        free(y_train);
+    }
+    int correct = 0;
+    while (correct < 900) {
+        // Entraîner le modèle
+
+
+        //Test
+        correct = test_model("/home/clement/Documents/archive/Validation/A", 1000);
+        printf("Correct predictions: %d\n", correct);
+        printf("Saving weights\n");
+        save_perceptron_weights(NUM_CLASSES, "weights.txt");
     }
 
-    // Créer les étiquettes en one-hot encoding
-    create_one_hot_labels(y_train, selected_images, 60000);
-    printf("Training the model\n");
-    // Entraîner le modèle
-    train(x_train, y_train, 60000);
 
-    // Libérer la mémoire allouée
-    for (int i = 0; i < 60000; i++) {
-        free(y_train[i]);
-    }
-    free(x_train);
-    free(y_train);
+
     free(dataset);
+    free_percetrons();
 
     return 0;
 }

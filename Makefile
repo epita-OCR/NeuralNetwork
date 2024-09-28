@@ -1,5 +1,6 @@
 CC := gcc
-CFLAGS := -Wall -Wextra -g -lm
+CFLAGS := -Wall -Wextra -lm
+DEBUG_FLAGS := -g -fsanitize=address
 SOURCES = $(wildcard src/*.c)
 OBJS = $(SOURCES:.c=.o)
 
@@ -10,10 +11,11 @@ all: neural
 
 #Build
 neural : $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $(OBJS) -lm -g
+	$(CC) $(CFLAGS) -o $@ $(OBJS) -lm
+
 
 %.o : %.c
-	$(CC) $(CFLAGS) -c -o $@ $< -g
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 
 run_tests: $(OBJS) $(TEST_OBJS)

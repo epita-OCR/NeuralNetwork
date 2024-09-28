@@ -13,6 +13,8 @@
 struct ImageData{
     float* pixels;  // Image normalisée (pixels)
     int label;                 // Label de l'image (0-25 correspondant à A-Z)
+    int width;
+    int height;
 } ;
 
 // Prototypes des fonctions
@@ -63,7 +65,7 @@ void init_perceptrons();
  * @param x Entrée des caractéristiques
  * @param ze Tableau pour stocker les résultats softmax
  */
-void z_perceptrons(struct Perceptron* perceptrons, float* x, float* ze);
+void z_perceptrons(struct Perceptron* perceptrons, float* x, double* ze);
 
 /**
  * Fonction pour calculer la perte de classification softmax.
@@ -107,6 +109,32 @@ void selection_bash(float** x_tot, float** y_tot, size_t total_size, float** x_t
  * @param total_size Nombre total d'exemples dans l'ensemble d'entraînement
  */
 void train(float** entrainement_imgs, float** entrainement_chiffres, size_t total_size);
+
+
+/**
+ * Charge les images de test et évalue le modèle.
+ *
+ * @param directory_path Chemin du répertoire contenant les images de test
+ * @param num_images Nombre d'images à évaluer
+ * @return Nombre de prédictions correctes
+ */
+int test_model(const char* directory_path, int num_images);
+
+/**
+ * Libère la mémoire allouée pour les coefficients des perceptrons.
+ *
+ */
+void free_percetrons();
+
+/**
+ * Sauvegarde les poids des perceptrons dans un fichier.
+ *
+ * @param perceptrons Tableau de perceptrons
+ * @param num_perceptrons Nombre de perceptrons
+ * @param file_path Chemin du fichier de sauvegarde
+ */
+void save_perceptron_weights(int num_perceptrons, const char* file_path);
+
 
 #endif  // TRAIN_H
 
