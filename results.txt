@@ -1,0 +1,89 @@
+12:04:54 | New Start of program
+
+12:04:54 | Total number of image : 7282.000000
+12:04:54 | Correct predictions: 330.000000
+12:04:54 |Porcentage of correct predictions: 4.531722%
+
+12:05:56 | New Start of program
+
+12:05:56 | Total number of image : 7282.000000
+12:05:56 | Correct predictions: 241.000000
+12:05:56 | Porcentage of correct predictions: 3.309530%
+
+12:05:56 | Total number of image : 7282.000000
+12:05:56 | Correct predictions: 464.000000
+12:05:56 | Porcentage of correct predictions: 6.371876%
+
+12:29:51 | New Start of program
+
+12:29:51 | Total number of image : 7282.000000
+12:29:51 | Correct predictions: 289.000000
+12:29:51 | Porcentage of correct predictions: 3.968690%
+
+12:29:51 | New Start of program
+
+12:29:51 | Total number of image : 7282.000000
+12:29:51 | Correct predictions: 276.000000
+12:29:51 | Porcentage of correct predictions: 3.790168%
+
+12:29:51 | New Start of program
+
+12:29:51 | Total number of image : 7282.000000
+12:29:51 | Correct predictions: 394.000000
+12:29:51 | Porcentage of correct predictions: 5.410602%
+
+12:29:51 | New Start of program
+
+12:29:51 | Total number of image : 7282.000000
+12:29:51 | Correct predictions: 255.000000
+12:29:51 | Porcentage of correct predictions: 3.501785%
+
+12:42:41 | New Start of program
+
+12:42:41 | Total number of image : 7282.000000
+12:42:41 | Correct predictions: 343.000000
+12:42:41 | Porcentage of correct predictions: 4.710244%
+
+12:42:41 | New Start of program
+
+12:42:41 | Total number of image : 7282.000000
+12:42:41 | Correct predictions: 563.000000
+12:42:41 | Porcentage of correct predictions: 7.731392%
+
+12:42:41 | Total number of image : 7282.000000
+12:42:41 | Correct predictions: 285.000000
+12:42:41 | Porcentage of correct predictions: 3.913760%
+
+12:42:41 | Total number of image : 7282.000000
+12:42:41 | Correct predictions: 289.000000
+12:42:41 | Porcentage of correct predictions: 3.968690%
+
+13:02:49 | New Start of program
+
+13:02:49 | Total number of image : 7282.000000
+13:02:49 | Correct predictions: 272.000000
+13:02:49 | Porcentage of correct predictions: 3.735238%
+
+13:02:49 | Total number of image : 7282.000000
+13:02:49 | Correct predictions: 358.000000
+13:02:49 | Porcentage of correct predictions: 4.916232%
+
+13:02:49 | Total number of image : 7282.000000
+13:02:49 | Correct predictions: 796.000000
+13:02:49 | Porcentage of correct predictions: 10.931063%
+
+13:02:49 | Total number of image : 7282.000000
+13:02:49 | Correct predictions: 993.000000
+13:02:49 | Porcentage of correct predictions: 13.636364%
+
+13:02:49 | Total number of image : 7282.000000
+13:02:49 | Correct predictions: 1170.000000
+13:02:49 | Porcentage of correct predictions: 16.067015%
+
+13:02:49 | Total number of image : 7282.000000
+13:02:49 | Correct predictions: 1454.000000
+13:02:49 | Porcentage of correct predictions: 19.967041%
+
+13:02:49 | Total number of image : 7282.000000
+13:02:49 | Correct predictions: 1676.000000
+13:02:49 | Porcentage of correct predictions: 23.015656%
