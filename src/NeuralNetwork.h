@@ -32,6 +32,8 @@ int predict(NeuralNetwork* nn, float* input);
 
 void free_neural_network(NeuralNetwork* nn);
 
+void shuffle_dataset(float** inputs, float** targets, int num_samples);
+
 
 
 #endif //NEURALNETWORK_H

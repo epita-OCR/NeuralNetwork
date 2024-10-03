@@ -68,15 +68,15 @@ void get_filename_without_extension(const char *filepath, char *filename)
     }
 }
 
-int load_images_from_directory(const char* directory_path, struct ImageData* dataset) {
+int load_images_from_directory(const char* directory_path, struct ImageData* dataset, size_t actual_size) {
     DIR* dir = opendir(directory_path);
     if (dir == NULL) {
         err(EXIT_FAILURE,"Erreur lors de l'ouverture du répertoire %s\n", directory_path);
     }
 
     struct dirent* entry;
-    int count = 0;
-
+    int count = actual_size;
+    int res = 0;
     while ((entry = readdir(dir)) != NULL) {
         // Ignorer les répertoires spéciaux "." et ".."
         if (entry->d_type == DT_REG) {
@@ -91,11 +91,18 @@ int load_images_from_directory(const char* directory_path, struct ImageData* dat
                 dataset[count].pixels = pixels;
                 dataset[count].width = width;
                 dataset[count].height = height;
+
                 char *dir[1];
                 get_filename_without_extension(directory_path, dir);
                 dataset[count].label = ((char) dir[0]) - 97; // Définir ici la bonne étiquette en fonction du nom de fichier ou du répertoire
                 //printf("FilePath : %s || Domc name = %s || n = %i\n", filepath, dir, ((char) dir[0]) - 97);
+                //dataset[count].filename = filepath;
+                if (INPUT_SIZE != dataset[count].width * dataset[count].height) {
+                    err(EXIT_FAILURE, "Image as not the correct size || INPUT_SIZE = %i != size =  %i || dir = %s\n",
+                        INPUT_SIZE, dataset[count].width * dataset[count].height, dir);
+                }
                 count++;
+                res++;
             }
             // Libérer la mémoire des pixels
             else {
@@ -105,8 +112,8 @@ int load_images_from_directory(const char* directory_path, struct ImageData* dat
     }
     closedir(dir);
     //dataset_size = count;
-
-    return count;
+    //printf("res = %i\n", res);
+    return res;
 }
 
 
@@ -124,40 +131,46 @@ void start_train(NeuralNetwork *nn) {
 
     int dataset_size = 0;
     //pid_t pids[NUM_CLASSES];
-
+    struct ImageData *dataset = calloc(MAX_IMAGES, sizeof(struct ImageData));
     for (int i = 0; i < NUM_CLASSES; i++) {
         //if ((pids[i] = fork()) == 0) {
-            //Child process
-            char dir[256];
-            snprintf(dir, sizeof(dir), "%s%s", directory_path, subdirectories[i]);
+        //Child process
+        char dir[256];
+        snprintf(dir, sizeof(dir), "%s%s", directory_path, subdirectories[i]);
 
-            struct ImageData *dataset = calloc(MAX_IMAGES, sizeof(struct ImageData));
-            if (dataset == NULL) {
-                err(1, "Memory allocation failed\n");
-            }
 
-            printf("Loading images from directory %s\n", dir);
-            dataset_size = load_images_from_directory(dir, dataset);
+        if (dataset == NULL) {
+            err(1, "Memory allocation failed\n");
+        }
 
+        printf("Loading images from directory %s\n", dir);
+        printf("dataset_size = %i\n", dataset_size);
+        if (dataset_size >= MAX_IMAGES) {
+            err(EXIT_FAILURE, "Maximum number of images reached\n");
+        }
+        dataset_size += load_images_from_directory(dir, dataset, dataset_size);
+    }
             printf("Nombre total d'images chargées : %d\n", dataset_size);
 
-            printf("Selecting random images for training\n");
-            struct ImageData selected_images[MAX_IMAGES];
-            select_random_images(dataset, dataset_size, selected_images, 60000);
+
+
+            //printf("Selecting random images for training\n");
+            //struct ImageData selected_images[dataset_size];
+            //select_random_images(dataset, dataset_size, selected_images, dataset_size);
 
             printf("Preparing input arrays and labels for training\n");
             // Préparer les tableaux d'entrée et les labels pour l'entraînement
-            float** x_train = calloc(MAX_IMAGES, sizeof(float*));
-            float** y_train = calloc(MAX_IMAGES, sizeof(float*));
+            float** x_train = calloc(dataset_size, sizeof(float*));
+            float** y_train = calloc(dataset_size, sizeof(float*));
 
             printf("Loading and normalizing images for training\n");
             // Charger et normaliser les images pour l'entraînement
-            for (int i = 0; i < MAX_IMAGES; i++) {
-                if (INPUT_SIZE != selected_images[i].width * selected_images[i].height) {
-                    err(EXIT_FAILURE, "Image as not the correct size || INPUT_SIZE = %i != size =  %i \n",
-                        INPUT_SIZE, selected_images[i].width * selected_images[i].height);
+            for (int i = 0; i < dataset_size; i++) {
+                if (INPUT_SIZE != dataset[i].width * dataset[i].height && dataset[i].pixels != NULL) {
+                    err(EXIT_FAILURE, "Image as not the correct size || INPUT_SIZE = %i != size =  %i\n",
+                        INPUT_SIZE, dataset[i].width * dataset[i].height);
                 }
-                x_train[i] = selected_images[i].pixels;  // Charger les pixels normalisés
+                x_train[i] = dataset[i].pixels;  // Charger les pixels normalisés
                 y_train[i] = calloc(NUM_CLASSES, sizeof(float));  // Allouer les labels en one-hot encoding
                 if (y_train[i] == NULL) {
                     err(EXIT_FAILURE, "Memory allocation failed for y_train\n");
@@ -165,12 +178,14 @@ void start_train(NeuralNetwork *nn) {
             }
 
             printf("Creating one-hot labels for training\n");
-            create_one_hot_labels(y_train, selected_images, MAX_IMAGES);
+            create_one_hot_labels(y_train, dataset, dataset_size);
             printf("Training the model\n");
-            train(nn, x_train, y_train, dataset_size, 100, 0.1);
+            // Shuffle the dataset
+            shuffle_dataset(x_train, y_train, dataset_size);
+            train(nn, x_train, y_train, dataset_size, 100, 2);
 
             // Libérer la mémoire allouée
-            for (int i = 0; i < 60000; i++) {
+            for (int i = 0; i < dataset_size; i++) {
                 free(y_train[i]);
             }
             free(x_train);
@@ -178,15 +193,9 @@ void start_train(NeuralNetwork *nn) {
             free(dataset);
 
 
-           // exit(0);  // Child process exits
-        }
+
     }
 
-    // Parent process waits for all child processes to complete
-    //for (int i = 0; i < NUM_CLASSES; i++) {
-     //   waitpid(pids[i], NULL, 0);
-    //}
-//}
 
 //Test the model
 int test_model(NeuralNetwork *nn, const char* directory_path, int num_images) {
@@ -196,9 +205,10 @@ int test_model(NeuralNetwork *nn, const char* directory_path, int num_images) {
     // Parcourir les sous-dossiers pour charger les images
     char* subdirectories[] = {"a", "b", "c", "d", "e",
         "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
-    float correct = 0;
+    float total_correct = 0;
     float total_size = 0;
     for (int letter = 0; letter < NUM_CLASSES; letter++) {
+        float correct = 0;
         char* dir[39] = { 0 };
         strcat(dir, directory_path);
         strcat(dir, subdirectories[letter]);
@@ -212,7 +222,7 @@ int test_model(NeuralNetwork *nn, const char* directory_path, int num_images) {
         }
 
         printf("Loading images from directory %s\n", dir);
-        dataset_size = load_images_from_directory(dir, dataset);
+        dataset_size = load_images_from_directory(dir, dataset, 0);
         printf("dataset_size = %i\n", dataset_size);
         total_size += dataset_size;
 
@@ -220,27 +230,32 @@ int test_model(NeuralNetwork *nn, const char* directory_path, int num_images) {
         // Use predict function to predict the label of the image
         for (int i = 0; i < dataset_size; i++) {
             float* input = dataset[i].pixels;
-
+            if (dataset[i].pixels == NULL) {
+                err(EXIT_FAILURE, "Test -- Image as not the correct size || INPUT_SIZE = %i != size =  %i || dir = %s\n",
+                    INPUT_SIZE, dataset[i].width * dataset[i].height, dir);
+            }
             int predicted_label = predict(nn, input);
-            //printf("For label %i, predicted label = %i\n", dataset[i].label, predicted_label);
+            //printf("For label %c, predicted label = %c\n", 'a' + dataset[i].label, 'a' + predicted_label);
             if (predicted_label == dataset[i].label) {
                 correct++;
             }
         }
+        total_correct += correct;
+        printf("Correct predictions for letter %c: %f\n", 'a' + letter, correct);
     }
     printf("Number total of images : %f\n", total_size);
-    printf("Correct predictions: %f\n", correct);
-    printf("Porcentage of correct predictions: %f\%\n", (correct / total_size) * 100);
+    printf("Correct predictions: %f\n", total_correct);
+    printf("Porcentage of correct predictions: %f\%\n", (total_correct / total_size) * 100);
     //Add the percentage of correct predictions to the file
     FILE* file = fopen("results.txt", "a");
     if (file == NULL) {
         err(EXIT_FAILURE, "Error opening file\n");
     }
     fprintf(file, "\n%s | Total number of image : %f\n", __TIME__, total_size);
-    fprintf(file, "%s | Correct predictions: %f\n",__TIME__, correct);
-    fprintf(file, "%s | Porcentage of correct predictions: %f\%\n", __TIME__, (correct / total_size) * 100);
+    fprintf(file, "%s | Correct predictions: %f\n",__TIME__, total_correct);
+    fprintf(file, "%s | Porcentage of correct predictions: %f\%\n", __TIME__, (total_correct / total_size) * 100);
     fclose(file);
-    return correct;
+    return total_correct;
 }
 
 
@@ -254,14 +269,14 @@ int main() {
     fprintf(file, "\n%s | New Start of program\n", __TIME__);
     fclose(file);
 
-    int num_layers = 4;
-    int layer_sizes[] = {INPUT_SIZE, 128, 64, NUM_CLASSES}; // Example for MNIST dataset
+    int num_layers = 3;
+    int layer_sizes[] = {INPUT_SIZE, 100, NUM_CLASSES}; // Example for MNIST dataset
     NeuralNetwork* nn = create_neural_network(num_layers, layer_sizes);
 
     // Import des poids des perceptrons si le fichier existe
 
     int correct = 0;
-    while (correct < 6000) {
+    while (1) {
         correct = 0;
 
         correct += test_model(nn, "/home/clement/Documents/refineddataset/dataset/", 1000);

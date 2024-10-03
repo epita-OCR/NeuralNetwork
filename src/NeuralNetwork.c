@@ -81,16 +81,18 @@ void forward_propagation(NeuralNetwork* nn, float* input) {
                 sum += nn->weights[layer - 1][neuron][prev_neuron] * nn->activations[layer - 1][prev_neuron];
             }
             nn->z_values[layer - 1][neuron] = sum;
-            if (layer == nn->num_layers - 1) {
-                nn->activations[layer][neuron] = sum; // For softmax layer
-            } else {
+            //if (layer == nn->num_layers - 1) {
+                //nn->activations[layer][neuron] = sum; // For softmax layer
+            //} else {
                 nn->activations[layer][neuron] = sigmoid(sum);
-            }
+            //}
         }
     }
 
     // Apply softmax to the output layer
-    softmax(nn->activations[nn->num_layers - 1], nn->layer_sizes[nn->num_layers - 1]);
+    //softmax(nn->activations[nn->num_layers - 1], nn->layer_sizes[nn->num_layers - 1]);
+
+
 }
 
 void backward_propagation(NeuralNetwork* nn, float* target, float learning_rate) {
@@ -144,13 +146,29 @@ void train(NeuralNetwork* nn, float** inputs, float** targets, int num_samples, 
             backward_propagation(nn, targets[sample], learning_rate);
 
             // Calculate loss (cross-entropy)
-            for (int i = 0; i < nn->layer_sizes[nn->num_layers - 1]; i++) {
+            //for (int i = 0; i < nn->layer_sizes[nn->num_layers - 1]; i++) {
               	//printf("targets[sample][i] = %f\n", targets[sample][i]);
-                total_loss -= targets[sample][i] * logf(nn->activations[nn->num_layers - 1][i]);
-            }
+                //total_loss -= targets[sample][i] * logf(nn->activations[nn->num_layers - 1][i]);
+            //}
         }
-        printf("Epoch %d, Loss: %f\n", epoch + 1, total_loss / num_samples);
+        //printf("Epoch %d, Loss: %f\n", epoch + 1, total_loss);
+        printf("Epoch %d\n", epoch + 1);
     }
+}
+
+//Randomly shuffle the dataset, labels are created after the shuffle
+void shuffle_dataset(float** inputs, float** targets, int num_samples) {
+    srand(time(NULL));
+    for (int i = num_samples - 1; i > 0; i--) {
+        int j = rand() % (i + 1);
+        float* temp_input = inputs[i];
+        inputs[i] = inputs[j];
+        inputs[j] = temp_input;
+        float* temp_target = targets[i];
+        targets[i] = targets[j];
+        targets[j] = temp_target;
+    }
+
 }
 
 int predict(NeuralNetwork* nn, float* input) {

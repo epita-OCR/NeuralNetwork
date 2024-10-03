@@ -10,6 +10,7 @@ struct ImageData{
     int label;                 // Label de l'image (0-25 correspondant à A-Z)
     int width;
     int height;
+    //char* filename;
 } ;
 
 int is_directory(const char* path);
