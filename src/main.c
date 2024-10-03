@@ -21,6 +21,25 @@
 #define BATCH_SIZE 64
 
 
+float* resize_image_nearest_neighbor(float* input_pixels, int old_width, int old_height, int new_width, int new_height) {
+    float* output_pixels = (float*) calloc(new_width * new_height, sizeof(float));
+    if (output_pixels == NULL) {
+        printf("Erreur lors de l'allocation de mémoire pour l'image redimensionnée\n");
+        return NULL;
+    }
+
+    for (int y = 0; y < new_height; y++) {
+        int nearest_y = y * old_height / new_height;
+        for (int x = 0; x < new_width; x++) {
+            int nearest_x = x * old_width / new_width;
+            output_pixels[y * new_width + x] = input_pixels[nearest_y * old_width + nearest_x];
+        }
+    }
+
+    return output_pixels;
+}
+
+
 // Fonction pour charger une image PNG
 float* load_png_image(const char* file_path, int* width, int* height, int* channels) {
     // Charger l'image en niveaux de gris
@@ -31,15 +50,36 @@ float* load_png_image(const char* file_path, int* width, int* height, int* chann
         return NULL;
     }
 
+    int old_width = *width;
+    int old_height = *height;
+
     // Convertir l'image en un tableau de flottants
-    float* pixels = (float*) calloc((*width) * (*height), sizeof(float));
-    for (int i = 0; i < (*width) * (*height); i++) {
+    float* pixels = (float*) calloc(old_width * old_height, sizeof(float));
+    for (int i = 0; i < old_width * old_height; i++) {
         pixels[i] = data[i] / 255.0f;  // Normalisation des pixels entre 0 et 1
     }
 
     stbi_image_free(data);  // Libérer la mémoire de l'image chargée
-    return pixels;
+
+    // Redimensionner l'image à 32x32 pixels
+    int new_width = 32;
+    int new_height = 32;
+    float* resized_pixels = resize_image_nearest_neighbor(pixels, old_width, old_height, new_width, new_height);
+
+    free(pixels);  // Libérer la mémoire de l'image originale
+
+    if (resized_pixels == NULL) {
+        printf("Erreur lors du redimensionnement de l'image %s\n", file_path);
+        return NULL;
+    }
+
+    *width = new_width;
+    *height = new_height;
+
+    return resized_pixels;
 }
+
+
 
 void get_filename_without_extension(const char *filepath, char *filename)
 {
@@ -94,7 +134,7 @@ int load_images_from_directory(const char* directory_path, struct ImageData* dat
 
                 char *dir[1];
                 get_filename_without_extension(directory_path, dir);
-                dataset[count].label = ((char) dir[0]) - 97; // Définir ici la bonne étiquette en fonction du nom de fichier ou du répertoire
+                dataset[count].label = ((char) dir[0]) - 'A'; // Définir ici la bonne étiquette en fonction du nom de fichier ou du répertoire
                 //printf("FilePath : %s || Domc name = %s || n = %i\n", filepath, dir, ((char) dir[0]) - 97);
                 //dataset[count].filename = filepath;
                 if (INPUT_SIZE != dataset[count].width * dataset[count].height) {
@@ -124,10 +164,10 @@ void start_train(NeuralNetwork *nn) {
     printf("Initializing perceptrons\n");
 
     // Charger les images du répertoire "Train". Les images sont dans des sous-dossiers. Il faur donc parcourir les sous-dossiers pour charger les images.
-    char* directory_path = "/home/clement/Documents/refineddataset/dataset/";
+    char* directory_path = "/home/clement.forget/NeuralNetwork/data/training_data/";
     // Parcourir les sous-dossiers pour charger les images
-    char* subdirectories[] = {"a", "b", "c", "d", "e",
-        "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
+    char* subdirectories[] = {"A", "B", "C", "D", "E",
+        "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
 
     int dataset_size = 0;
     //pid_t pids[NUM_CLASSES];
@@ -203,8 +243,8 @@ int test_model(NeuralNetwork *nn, const char* directory_path, int num_images) {
     // Charger les images du répertoire "Validation". Les images sont dans des sous-dossiers. Il faur donc parcourir les sous-dossiers pour charger les images.
     //char* directory_path = "/home/clement/Documents/archive/Validation/";
     // Parcourir les sous-dossiers pour charger les images
-    char* subdirectories[] = {"a", "b", "c", "d", "e",
-        "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
+   char* subdirectories[] = {"A", "B", "C", "D", "E",
+        "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"}; 
     float total_correct = 0;
     float total_size = 0;
     for (int letter = 0; letter < NUM_CLASSES; letter++) {
@@ -231,17 +271,17 @@ int test_model(NeuralNetwork *nn, const char* directory_path, int num_images) {
         for (int i = 0; i < dataset_size; i++) {
             float* input = dataset[i].pixels;
             if (dataset[i].pixels == NULL) {
-                err(EXIT_FAILURE, "Test -- Image as not the correct size || INPUT_SIZE = %i != size =  %i || dir = %s\n",
+               err(EXIT_FAILURE, "Test -- Image as not the correct size || INPUT_SIZE = %i != size =  %i || dir = %s\n",
                     INPUT_SIZE, dataset[i].width * dataset[i].height, dir);
             }
             int predicted_label = predict(nn, input);
-            //printf("For label %c, predicted label = %c\n", 'a' + dataset[i].label, 'a' + predicted_label);
+            printf("For label %c, predicted label = %c\n", 'A' + dataset[i].label, 'A' + predicted_label);
             if (predicted_label == dataset[i].label) {
                 correct++;
             }
         }
         total_correct += correct;
-        printf("Correct predictions for letter %c: %f\n", 'a' + letter, correct);
+        printf("Correct predictions for letter %c: %f\n", 'A' + letter, correct);
     }
     printf("Number total of images : %f\n", total_size);
     printf("Correct predictions: %f\n", total_correct);
@@ -279,7 +319,7 @@ int main() {
     while (1) {
         correct = 0;
 
-        correct += test_model(nn, "/home/clement/Documents/refineddataset/dataset/", 1000);
+        correct += test_model(nn, "/home/clement.forget/NeuralNetwork/data/testing_data/", 1000);
 
         // Entraîner le modèle
         start_train(nn);
