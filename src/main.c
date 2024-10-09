@@ -164,7 +164,7 @@ void start_train(NeuralNetwork *nn) {
     printf("Initializing perceptrons\n");
 
     // Charger les images du répertoire "Train". Les images sont dans des sous-dossiers. Il faur donc parcourir les sous-dossiers pour charger les images.
-    char* directory_path = "/home/clement.forget/NeuralNetwork/data/training_data/";
+    char* directory_path = "/home/clement/Documents/DEV/OCR/NeuralNetwork/data/training_data/";
     // Parcourir les sous-dossiers pour charger les images
     char* subdirectories[] = {"A", "B", "C", "D", "E",
         "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
@@ -222,7 +222,7 @@ void start_train(NeuralNetwork *nn) {
             printf("Training the model\n");
             // Shuffle the dataset
             shuffle_dataset(x_train, y_train, dataset_size);
-            train(nn, x_train, y_train, dataset_size, 100, 2);
+            train(nn, x_train, y_train, dataset_size, 100, 0.001);
 
             // Libérer la mémoire allouée
             for (int i = 0; i < dataset_size; i++) {
@@ -275,7 +275,7 @@ int test_model(NeuralNetwork *nn, const char* directory_path, int num_images) {
                     INPUT_SIZE, dataset[i].width * dataset[i].height, dir);
             }
             int predicted_label = predict(nn, input);
-            printf("For label %c, predicted label = %c\n", 'A' + dataset[i].label, 'A' + predicted_label);
+            //printf("For label %c, predicted label = %c\n", 'A' + dataset[i].label, 'A' + predicted_label);
             if (predicted_label == dataset[i].label) {
                 correct++;
             }
@@ -309,8 +309,8 @@ int main() {
     fprintf(file, "\n%s | New Start of program\n", __TIME__);
     fclose(file);
 
-    int num_layers = 3;
-    int layer_sizes[] = {INPUT_SIZE, 100, NUM_CLASSES}; // Example for MNIST dataset
+    int num_layers = 4;
+    int layer_sizes[] = {INPUT_SIZE, 124, NUM_CLASSES}; // Example for MNIST dataset
     NeuralNetwork* nn = create_neural_network(num_layers, layer_sizes);
 
     // Import des poids des perceptrons si le fichier existe
@@ -319,7 +319,7 @@ int main() {
     while (1) {
         correct = 0;
 
-        correct += test_model(nn, "/home/clement.forget/NeuralNetwork/data/testing_data/", 1000);
+        correct += test_model(nn, "/home/clement/Documents/DEV/OCR/NeuralNetwork/data/testing_data/", 1000);
 
         // Entraîner le modèle
         start_train(nn);

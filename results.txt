@@ -1,46 +1,42 @@
 
-11:58:44 | New Start of program
+08:07:20 | New Start of program
 
-12:00:33 | New Start of program
+08:07:20 | Total number of image : 728.000000
+08:07:20 | Correct predictions: 43.000000
+08:07:20 | Porcentage of correct predictions: 5.906593%
 
-12:39:55 | New Start of program
+08:07:20 | Total number of image : 728.000000
+08:07:20 | Correct predictions: 585.000000
+08:07:20 | Porcentage of correct predictions: 80.357140%
 
-12:45:54 | New Start of program
+08:07:20 | Total number of image : 728.000000
+08:07:20 | Correct predictions: 577.000000
+08:07:20 | Porcentage of correct predictions: 79.258240%
 
-12:48:03 | New Start of program
+08:07:20 | Total number of image : 728.000000
+08:07:20 | Correct predictions: 590.000000
+08:07:20 | Porcentage of correct predictions: 81.043961%
 
-12:48:03 | Total number of image : 728.000000
-12:48:03 | Correct predictions: 0.000000
-12:48:03 | Porcentage of correct predictions: 0.000000%
+08:07:20 | Total number of image : 728.000000
+08:07:20 | Correct predictions: 594.000000
+08:07:20 | Porcentage of correct predictions: 81.593407%
 
-12:48:39 | New Start of program
+08:07:20 | Total number of image : 728.000000
+08:07:20 | Correct predictions: 596.000000
+08:07:20 | Porcentage of correct predictions: 81.868134%
 
-12:48:39 | Total number of image : 728.000000
-12:48:39 | Correct predictions: 0.000000
-12:48:39 | Porcentage of correct predictions: 0.000000%
+20:38:41 | New Start of program
 
-12:52:46 | New Start of program
+20:39:14 | New Start of program
 
-12:52:46 | Total number of image : 728.000000
-12:52:46 | Correct predictions: 19.000000
-12:52:46 | Porcentage of correct predictions: 2.609890%
+20:39:14 | Total number of image : 728.000000
+20:39:14 | Correct predictions: 28.000000
+20:39:14 | Porcentage of correct predictions: 3.846154%
 
-12:53:25 | New Start of program
+20:39:14 | Total number of image : 728.000000
+20:39:14 | Correct predictions: 28.000000
+20:39:14 | Porcentage of correct predictions: 3.846154%
 
-12:53:25 | Total number of image : 728.000000
-12:53:25 | Correct predictions: 21.000000
-12:53:25 | Porcentage of correct predictions: 2.884615%
-
-12:53:54 | New Start of program
-
-12:53:54 | Total number of image : 728.000000
-12:53:54 | Correct predictions: 29.000000
-12:53:54 | Porcentage of correct predictions: 3.983517%
-
-12:53:54 | Total number of image : 728.000000
-12:53:54 | Correct predictions: 618.000000
-12:53:54 | Porcentage of correct predictions: 84.890106%
-
-12:53:54 | Total number of image : 728.000000
-12:53:54 | Correct predictions: 569.000000
-12:53:54 | Porcentage of correct predictions: 78.159340%
+20:39:14 | Total number of image : 728.000000
+20:39:14 | Correct predictions: 28.000000
+20:39:14 | Porcentage of correct predictions: 3.846154%
